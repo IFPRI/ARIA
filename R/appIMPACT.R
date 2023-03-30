@@ -4,7 +4,8 @@
 #'
 #' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
 #' @importFrom dplyr case_when %>% filter
-#' @importFrom utils select.list
+#' @importFrom utils select.list menu
+#' @importFrom tools file_ext
 #' @return Fires the app for IMPACT runs
 #' @export
 #'
@@ -24,13 +25,25 @@ appIMPACT <- function(folder){
     #    http://shiny.rstudio.com/
     #
 
-    indicator <- yrs <- unit2 <- NULL
+    indicator <- region <- yrs <- unit2 <- NULL
 
-    files <- grep(pattern = ".rds",x = list.files(path = folder),value = TRUE)
+    files <- grep(pattern = ".rds|.gdx",x = list.files(path = folder),value = TRUE)
 
     choice <- select.list(choices = files, title = "Please Select IMPACT runs:",
                           multiple = TRUE,
                           graphics = getOption("menu.graphics"))
+
+    for(file_vector in paste0(folder,"/",choice)){
+        if(file_ext(file_vector) %in% "gdx") {
+            cat("GDX file selected as",basename(file_vector), "\n")
+            user_choice <- menu(c("Yes", "No"),
+                                title="Would you like to convert this\nGDX file into a RDS file?\nChoosing 'no' will stop the program.")
+            if(user_choice == 2) stop("\nCould not convert GDX file to RDS.\nAborting ....... \nHint: Use RDS files if they exist or choose 'yes' at previous prompt")
+            cat("Attempting to convert to RDS file ......", "\n")
+            getReport(gdx = file_vector)
+            choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
+        }
+    }
 
     df_prep <- NULL
 
@@ -41,7 +54,7 @@ appIMPACT <- function(folder){
         df_prep <- rbind(df_prep,df)
     }
 
-    df_prep$yrs <- as.factor(as.character(df_prep$yrs))
+    df_prep$yrs <- as.numeric(as.character(df_prep$yrs))
 
     # Define UI for application that draws a histogram
     ui <- fluidPage(
@@ -53,14 +66,20 @@ appIMPACT <- function(folder){
         sidebarLayout(
 
             sidebarPanel(
+
                 selectInput(inputId = "indicator", label = strong("Indicator"),
                             choices = unique(df_prep$indicator),
                             selected = "Population"),
 
+                selectInput(inputId = "region","Regions",
+                            choices = unique(df_prep$region),
+                            multiple = TRUE,
+                            selected = unique(df_prep$region)),
+
                 sliderInput(inputId = "year", label = strong("Year"),
-                            min = min(df$yrs),
-                            value = c(min(df$yrs),max(df$yrs)),
-                            max = max(df$yrs),
+                            min = min(df_prep$yrs),
+                            value = c(min(df_prep$yrs),max(df_prep$yrs)),
+                            max = max(df_prep$yrs),
                             step=1,sep = ""),
 
                 # checkboxInput("donum1", "Line plot", value = T),
@@ -70,26 +89,23 @@ appIMPACT <- function(folder){
                 # checkboxInput("unit_relative", "Line plot - relative", value = F),
                 # checkboxInput("unit_index", "Line plot - index", value = F),
 
-                radioButtons(inputId = "line_plot_type" ,
-                             label = "Select the plot type",
-                             choices = c("Default", "Relative", "Index" )),
+                fluidRow(column(4,
+                                radioButtons(inputId = "line_plot_type" ,
+                                             label = "Select the plot type",
+                                             choices = c("Default", "Relative", "Index" ))),
+                         column(4,
+                                checkboxInput("free_y", label = strong("Free Y-axis"),
+                                              value = FALSE,
+                                              width = NULL))
+                         ),
 
-                # sliderInput("wt1","Lineplot Weight",min=1,max=3,value=3),
-                # sliderInput("wt2","Barplot weight",min=1,max=3,value=3),
-                checkboxInput("free_y", label = strong("Free Y-axis"),
-                              value = FALSE,
-                              width = NULL),
+                fluidRow(column(1,
+                                imageOutput("preImage"))
+                ),
 
                 width=3
             ),
 
-            # Output: Description, lineplot, and reference
-            # mainPanel(
-            #     plotOutput(outputId = "impact_plot", height = "1200px"),
-            #     # textOutput(outputId = "desc"),
-            #     # tags$a(href = "https://www.google.com/finance/domestic_trends", "Source: Google Domestic Trends", target = "_blank")
-            #     #tableOutput("DataTable")
-            #     ),
 
             mainPanel(
                 tabsetPanel(type = "tabs",
@@ -97,19 +113,35 @@ appIMPACT <- function(folder){
                                      plotOutput(outputId="plotgraph", width="1400px",height="900px")),
                             tabPanel("Area Plot",
                                      plotOutput(outputId="areaplot", width="1400px",height="900px"))
-                )
+                ),
+                textOutput(outputId = "Subtitle1"),
+                tags$a(href = "https://github.com/abhimishr/ARIA",
+                       "Powered by ARIA (App foR ImpAct)", target = "_blank"),
             )
         )
     )
 
     # Define server logic required to draw a histogram
-    server <- function(input, output) {
+    server <- function(input, output, session) {
+
+        # Send a pre-rendered image, and don't delete the image after sending it
+        output$preImage <- renderImage({
+            # When input$n is 3, filename is ./images/image3.jpeg
+            filename <- system.file("extdata", "ifpri-logo.png", package = "ARIA")
+
+            # Return a list containing the filename and alt text
+            list(src = filename,
+                 width = 188,
+                 height = 105)
+
+        }, deleteFile = FALSE)
 
         dfx <- reactive({
             class(df_prep) <- "data.frame"
-            #df_prep[df_prep$indicator == input$indicator,]
+
             df_prep %>%
                 filter(indicator == input$indicator) %>%
+                filter(region %in% input$region) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
                 # filter(unit2 %in% case_when(input$unit_def ~ unique(grep("Default", unit2, value = TRUE)),
                 #                             input$unit_relative ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
@@ -127,7 +159,7 @@ appIMPACT <- function(folder){
 
         p_line <-  reactive({
             ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
-                theme_minimal(base_size = 20) +
+                theme_minimal(base_size = 25) +
                 facet_wrap(region~unit2) +
                 {if(input$free_y) facet_wrap(region~unit2, scales = "free_y")}+
                 geom_line(aes(color=dfx()$flag, group=dfx()$flag), linewidth =1.3) +
@@ -146,10 +178,11 @@ appIMPACT <- function(folder){
 
         p_bar <-  reactive({
             ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
-                theme_minimal(base_size = 20) +
+                theme_minimal(base_size = 25) +
                 facet_wrap(.~flag) +
                 #    {if(free_y) facet_wrap(.~region, scales = "free_y")}+
                 geom_area(position='stack',aes(fill=dfx()$region,group=dfx()$region),color="black") +
+                stat_summary(fun.y = sum, geom = "line", size = 2) +
                 ylab(unique(dfx()$unit)) +
                 xlab("Years") +
                 ggtitle(unique(dfx()$indicator)) +
@@ -160,23 +193,18 @@ appIMPACT <- function(folder){
                 guides(fill=guide_legend(title="Regions"))
         })
 
-        # output$plotgraph = renderPlot({
-        #     ptlist <- list(p_line(),p_bar())
-        #     wtlist <- c(input$wt1,input$wt2)
-        #     # remove the null plots from ptlist and wtlist
-        #     to_delete <- !sapply(ptlist,is.null)
-        #     ptlist <- ptlist[to_delete]
-        #     wtlist <- wtlist[to_delete]
-        #     if (length(ptlist)==0) return(NULL)
-        #
-        #     grid.arrange(grobs=ptlist,widths=wtlist,ncol=length(ptlist))
-        # })
+
         output$plotgraph = renderPlot({
             p_line()
         })
         output$areaplot = renderPlot({
             p_bar()
         })
+
+        session$onSessionEnded(function() {
+            stopApp()
+        })
+
     }
 
 
@@ -184,5 +212,6 @@ appIMPACT <- function(folder){
     runApp(shinyApp(ui = ui, server = server),
            launch.browser = getOption("shiny.launch.browser", interactive()),
            display.mode = "normal")
+
 }
 

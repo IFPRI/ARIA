@@ -18,5 +18,5 @@ Imports:
     dplyr (>= 1.1.1),
     ggplot2 (>= 3.4.1),
     DOORMAT (>= 2.1.0),
-    reportIMPACT (>= 1.1.0),
+    reportIMPACT (>= 1.1.1),
     utils
