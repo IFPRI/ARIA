@@ -1,6 +1,6 @@
 #' Title
 #'
-#' @param folder Folder path where IMPACT outputs are stored
+#' @param folder Folder path where IMPACT outputs are stored. Typically of format <path_to_impact_folder>/OutputFiles/Scenarios
 #'
 #' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
 #' @importFrom dplyr case_when %>% filter
@@ -9,21 +9,13 @@
 #' @return Fires the app for IMPACT runs
 #' @export
 #'
+#' @author Abhijeet Mishra
+#'
 #' @examples
 #' \dontrun{appIMPACT()}
 #' @export
 
 appIMPACT <- function(folder){
-    #folder="C:/EPTD/Modeling/IMPACT Non Mod Git/OutputFiles/Scenarios"
-
-    #
-    # This is a Shiny web application. You can run the application by clicking
-    # the 'Run App' button above.
-    #
-    # Find out more about building applications with Shiny here:
-    #
-    #    http://shiny.rstudio.com/
-    #
 
     indicator <- region <- yrs <- unit2 <- NULL
 
