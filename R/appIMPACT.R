@@ -27,22 +27,23 @@ appIMPACT <- function(folder){
 
     indicator <- region <- yrs <- unit2 <- NULL
 
-    files <- grep(pattern = ".rds|.gdx",x = list.files(path = folder),value = TRUE)
+    files <- grep(pattern = ".gdx",x = list.files(path = folder),value = TRUE)
 
     choice <- select.list(choices = files, title = "Please Select IMPACT runs:",
                           multiple = TRUE,
                           graphics = getOption("menu.graphics"))
 
     for(file_vector in paste0(folder,"/",choice)){
-        if(file_ext(file_vector) %in% "gdx") {
-            cat("GDX file selected as",basename(file_vector), "\n")
+        if(!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
+            cat("No preprocessed RDS file exists for ",basename(file_vector), "\n")
             user_choice <- menu(c("Yes", "No"),
-                                title="Would you like to convert this\nGDX file into a RDS file?\nChoosing 'no' will stop the program.")
+                                title="Would you like to convert this\nGDX file into a RDS file now?\nChoosing 'no' will stop the program.")
             if(user_choice == 2) stop("\nCould not convert GDX file to RDS.\nAborting ....... \nHint: Use RDS files if they exist or choose 'yes' at previous prompt")
             cat("Attempting to convert to RDS file ......", "\n")
             getReport(gdx = file_vector)
             choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
         }
+        choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
     }
 
     df_prep <- NULL
