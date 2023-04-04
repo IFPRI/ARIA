@@ -1,6 +1,6 @@
 Package: ARIA
 Type: Package
-Title: Data processor for IMPACT model (Data prOcessor fOR iMpAcT)
+Title: App for IMPACT (App foR ImpAct)
 Version: 2.3.0
 Authors@R: 
     person("Abhijeet", "Mishra",  , "A.Mishra@cgiar.org", role = c("aut", "cre"),

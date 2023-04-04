@@ -92,6 +92,9 @@ appIMPACT <- function(folder){
                                               width = NULL))
                          ),
 
+                downloadButton(label = "Line plot", outputId = "downloadPlot"),
+                downloadButton(label = "Area plot", outputId = "downloadPlotArea"),
+
                 fluidRow(column(1,
                                 imageOutput("preImage"))
                 ),
@@ -109,7 +112,7 @@ appIMPACT <- function(folder){
                 ),
                 textOutput(outputId = "Subtitle1"),
                 tags$a(href = "https://github.com/abhimishr/ARIA",
-                       "Powered by ARIA (App foR ImpAct)", target = "_blank"),
+                       "Powered by ARIA (App foR ImpAct)", target = "_blank")
             )
         )
     )
@@ -175,7 +178,7 @@ appIMPACT <- function(folder){
                 facet_wrap(.~flag) +
                 #    {if(free_y) facet_wrap(.~region, scales = "free_y")}+
                 geom_area(position='stack',aes(fill=dfx()$region,group=dfx()$region),color="black") +
-                stat_summary(fun.y = sum, geom = "line", size = 2) +
+                stat_summary(fun = sum, geom = "line", size = 2) +
                 ylab(unique(dfx()$unit)) +
                 xlab("Years") +
                 ggtitle(unique(dfx()$indicator)) +
@@ -193,6 +196,28 @@ appIMPACT <- function(folder){
         output$areaplot = renderPlot({
             p_bar()
         })
+
+        output$downloadPlot <- downloadHandler(
+            file = reactive({
+                paste0(dfx()$indicator,"_LP_",input$line_plot_type,'.png', sep='')
+                }),
+            content = function(file) {
+                ggsave(filename = file,
+                       plot = p_line(),
+                       width=16,
+                       height=16)
+            })
+
+        output$downloadPlotArea <- downloadHandler(
+            file = reactive({
+                paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
+            }),
+            content = function(file) {
+                ggsave(filename = file,
+                       plot = p_bar(),
+                       width=16,
+                       height=16)
+            })
 
         session$onSessionEnded(function() {
             stopApp()
