@@ -26,6 +26,15 @@ appIMPACT <- function(folder){
                           graphics = getOption("menu.graphics"))
 
     for(file_vector in paste0(folder,"/",choice)){
+        if(file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
+            cat("A preprocessed RDS file already exists for ",basename(file_vector), "\n")
+            user_choice <- menu(c("Yes", "No"),
+                                title="Would you like to OVERWRITE this RDS file now?\nChoosing 'no' will use the existing file.")
+            if(user_choice == 1) {
+                message("Overwriting ",gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))
+                getReport(gdx = file_vector)
+                }
+        }
         if(!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
             cat("No preprocessed RDS file exists for ",basename(file_vector), "\n")
             user_choice <- menu(c("Yes", "No"),
@@ -139,17 +148,25 @@ appIMPACT <- function(folder){
                 filter(indicator == input$indicator) %>%
                 filter(region %in% input$region) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                # filter(unit2 %in% case_when(input$unit_def ~ unique(grep("Default", unit2, value = TRUE)),
-                #                             input$unit_relative ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
-                #                             input$unit_index ~ unique(grep("Index", unit2, value = TRUE))
-                #                             )
-                #        ) %>%
                 filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
                                             input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
                                             input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
                 )
                 )
+        })
 
+        dfx_bar <- reactive({
+            class(df_prep) <- "data.frame"
+
+            df_prep %>%
+                filter(indicator == input$indicator) %>%
+                filter(region %in% setdiff(input$region,"GLO")) %>%
+                filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
+                                            input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                )
+                )
         })
 
 
@@ -173,17 +190,17 @@ appIMPACT <- function(folder){
         })
 
         p_bar <-  reactive({
-            ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
+            ggplot(dfx_bar(), aes(x = dfx_bar()$yrs, y = dfx_bar()$value)) +
                 theme_minimal(base_size = 25) +
                 facet_wrap(.~flag) +
                 #    {if(free_y) facet_wrap(.~region, scales = "free_y")}+
-                geom_area(position='stack',aes(fill=dfx()$region,group=dfx()$region),color="black") +
+                geom_area(position='stack',aes(fill=dfx_bar()$region,group=dfx_bar()$region),color="black") +
                 stat_summary(fun = sum, geom = "line", size = 2) +
-                ylab(unique(dfx()$unit)) +
+                ylab(unique(dfx_bar()$unit)) +
                 xlab("Years") +
-                ggtitle(unique(dfx()$indicator)) +
-                {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), " (change)"))} +
-                {if(input$line_plot_type == "Index") ggtitle(paste0(unique(dfx()$indicator), " (index)"))} +
+                ggtitle(unique(dfx_bar()$indicator)) +
+                {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), " (change)"))} +
+                {if(input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), " (index)"))} +
                 theme(legend.position = "bottom") +
                 theme(axis.text.x = element_text(angle = 90)) +
                 guides(fill=guide_legend(title="Regions"))
