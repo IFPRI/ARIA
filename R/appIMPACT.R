@@ -6,6 +6,7 @@
 #' @importFrom dplyr case_when %>% filter
 #' @importFrom utils select.list menu
 #' @importFrom tools file_ext
+#' @importFrom DT dataTableOutput
 #' @return Fires the app for IMPACT runs
 #' @export
 #'
@@ -101,6 +102,11 @@ appIMPACT <- function(folder){
                                               width = NULL))
                          ),
 
+                selectInput(inputId = "base_run", label = strong("BASE run"),
+                            choices = c("",unique(df_prep$flag)),
+                            selected = NULL,
+                            multiple = FALSE),
+
                 downloadButton(label = "Line plot", outputId = "downloadPlot"),
                 downloadButton(label = "Area plot", outputId = "downloadPlotArea"),
 
@@ -117,7 +123,9 @@ appIMPACT <- function(folder){
                             tabPanel("Line plot",
                                      plotOutput(outputId="plotgraph", width="1400px",height="900px")),
                             tabPanel("Area Plot",
-                                     plotOutput(outputId="areaplot", width="1400px",height="900px"))
+                                     plotOutput(outputId="areaplot", width="1400px",height="900px")),
+                            tabPanel("Dataset",
+                                     DT::dataTableOutput(outputId = 'compare_df'))
                 ),
                 textOutput(outputId = "Subtitle1"),
                 tags$a(href = "https://github.com/abhimishr/ARIA",
@@ -202,8 +210,28 @@ appIMPACT <- function(folder){
                 {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), " (change)"))} +
                 {if(input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), " (index)"))} +
                 theme(legend.position = "bottom") +
+                {if(input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
+                {if(input$line_plot_type == "Index") geom_hline(yintercept = 0, linetype="longdash", linewidth = 1.2, color = "gray")} +
                 theme(axis.text.x = element_text(angle = 90)) +
                 guides(fill=guide_legend(title="Regions"))
+        })
+
+        output$compare_df <- DT::renderDataTable({
+            DT::datatable(df_prep[,c("model","region","yrs","indicator","unit","unit2","flag","value")] %>%
+                              filter(indicator == input$indicator) %>%
+                              filter(region %in% setdiff(input$region,"GLO")) %>%
+                              filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                              filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
+                                                          input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                                                          )
+                                     ) %>%
+                              group_by(across(c("model","region","indicator","unit","unit2","flag"))) %>%
+                              mutate(change_to_base = case_when(input$line_plot_type == "Default" ~ paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1),2),"%"),
+                                                                input$line_plot_type != "Default" ~ NA
+                                                                )
+                                     )
+            )
         })
 
 
