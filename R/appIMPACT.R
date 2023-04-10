@@ -29,12 +29,8 @@ appIMPACT <- function(folder){
     for(file_vector in paste0(folder,"/",choice)){
         if(file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
             cat("A preprocessed RDS file already exists for ",basename(file_vector), "\n")
-            user_choice <- menu(c("Yes", "No"),
-                                title="Would you like to OVERWRITE this RDS file now?\nChoosing 'no' will use the existing file.")
-            if(user_choice == 1) {
-                message("Overwriting ",gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))
-                getReport(gdx = file_vector)
-                }
+            cat("You might want to run getReport() on this gdx file manually if you want to run fresh reporting", "\n")
+            cat("Porceeding with existing RDS file for this IMPACT run.", "\n")
         }
         if(!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
             cat("No preprocessed RDS file exists for ",basename(file_vector), "\n")
@@ -109,6 +105,7 @@ appIMPACT <- function(folder){
 
                 downloadButton(label = "Line plot", outputId = "downloadPlot"),
                 downloadButton(label = "Area plot", outputId = "downloadPlotArea"),
+                downloadButton(label = "Area plot", outputId = "download_plot_data"),
 
                 fluidRow(column(1,
                                 imageOutput("preImage"))
@@ -124,8 +121,10 @@ appIMPACT <- function(folder){
                                      plotOutput(outputId="plotgraph", width="1400px",height="900px")),
                             tabPanel("Area Plot",
                                      plotOutput(outputId="areaplot", width="1400px",height="900px")),
-                            tabPanel("Dataset",
-                                     DT::dataTableOutput(outputId = 'compare_df'))
+                            tabPanel("Comparison to base RUN",
+                                     DT::dataTableOutput(outputId = 'compare_df')),
+                            tabPanel("Comparison to base YEAR",
+                                     DT::dataTableOutput(outputId = 'compare_df_year'))
                 ),
                 textOutput(outputId = "Subtitle1"),
                 tags$a(href = "https://github.com/abhimishr/ARIA",
@@ -216,10 +215,35 @@ appIMPACT <- function(folder){
                 guides(fill=guide_legend(title="Regions"))
         })
 
+        output$help_text <- renderUI({
+            HTML("<b>Cannot generate this table witthout selecting base year. Please wait after selecting base year. The table generation takes time.</b>")
+        })
+
         output$compare_df <- DT::renderDataTable({
-            DT::datatable(df_prep[,c("model","region","yrs","indicator","unit","unit2","flag","value")] %>%
+
+            DT::datatable(df_prep[,c("model","region","yrs","indicator","value","unit","unit2","flag")] %>%
                               filter(indicator == input$indicator) %>%
-                              filter(region %in% setdiff(input$region,"GLO")) %>%
+                              filter(region %in% input$region) %>%
+                              filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                              filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
+                                                          input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                                                          )
+                                     ) %>%
+                              group_by(across(c("model","region","indicator","unit","unit2","yrs"))) %>%
+                              mutate(delta_base_RUN = case_when(!is.null(input$base_run) ~ paste0(round(100 * ((value / value[flag == input$base_run]) - 1),2),"%"),
+                                                                input$base_run == "" ~ paste0("Select base run"))
+                                     ) %>%
+                              filter(case_when(!is.null(input$base_run) ~ flag %in% setdiff(unique(df_prep$flag),input$base_run))) %>%
+                              filter(yrs == input$year[2]) %>%
+                              mutate(value = round(value,2))
+            )
+        })
+
+        output$compare_df_year <- DT::renderDataTable({
+            DT::datatable(df_prep[,c("model","region","yrs","indicator","value","unit","unit2","flag")] %>%
+                              filter(indicator == input$indicator) %>%
+                              filter(region %in% input$region) %>%
                               filter(yrs %in% c(input$year[1]:input$year[2])) %>%
                               filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
                                                           input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
@@ -227,10 +251,9 @@ appIMPACT <- function(folder){
                                                           )
                                      ) %>%
                               group_by(across(c("model","region","indicator","unit","unit2","flag"))) %>%
-                              mutate(change_to_base = case_when(input$line_plot_type == "Default" ~ paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1),2),"%"),
-                                                                input$line_plot_type != "Default" ~ NA
-                                                                )
-                                     )
+                              mutate(delta_base_YEAR = paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1),2),"%")) %>%
+                              filter(yrs == input$year[2]) %>%
+                              mutate(value = round(value,2))
             )
         })
 
@@ -254,6 +277,17 @@ appIMPACT <- function(folder){
             })
 
         output$downloadPlotArea <- downloadHandler(
+            file = reactive({
+                paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
+            }),
+            content = function(file) {
+                ggsave(filename = file,
+                       plot = p_bar(),
+                       width=16,
+                       height=16)
+            })
+
+        output$download_plot_data <- downloadHandler(
             file = reactive({
                 paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
             }),
