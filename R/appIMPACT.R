@@ -1,12 +1,12 @@
 #' Title
 #'
-#' @param folder Folder path where IMPACT outputs are stored. Typically of format <path_to_impact_folder>/OutputFiles/Scenarios
+#' @param folder Folder path where IMPACT outputs are stored.
+#' Typically of format <path_to_impact_folder>/OutputFiles/Scenarios
 #'
 #' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
-#' @importFrom dplyr case_when %>% filter
+#' @importFrom dplyr case_when %>% filter across group_by mutate
 #' @importFrom utils select.list menu
 #' @importFrom tools file_ext
-#' @importFrom DT dataTableOutput
 #' @return Fires the app for IMPACT runs
 #' @export
 #'
@@ -18,7 +18,7 @@
 
 appIMPACT <- function(folder){
 
-    indicator <- region <- yrs <- unit2 <- NULL
+    indicator <- region <- yrs <- unit2 <- value <- NULL
 
     files <- grep(pattern = ".gdx",x = list.files(path = folder),value = TRUE)
 
@@ -105,7 +105,6 @@ appIMPACT <- function(folder){
 
                 downloadButton(label = "Line plot", outputId = "downloadPlot"),
                 downloadButton(label = "Area plot", outputId = "downloadPlotArea"),
-                downloadButton(label = "Area plot", outputId = "download_plot_data"),
 
                 fluidRow(column(1,
                                 imageOutput("preImage"))
@@ -266,33 +265,22 @@ appIMPACT <- function(folder){
         })
 
         output$downloadPlot <- downloadHandler(
-            file = reactive({
+            filename = reactive({
                 paste0(dfx()$indicator,"_LP_",input$line_plot_type,'.png', sep='')
                 }),
-            content = function(file) {
-                ggsave(filename = file,
+            content = function(filename) {
+                ggsave(filename = filename,
                        plot = p_line(),
                        width=16,
                        height=16)
             })
 
         output$downloadPlotArea <- downloadHandler(
-            file = reactive({
+            filename = reactive({
                 paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
             }),
-            content = function(file) {
-                ggsave(filename = file,
-                       plot = p_bar(),
-                       width=16,
-                       height=16)
-            })
-
-        output$download_plot_data <- downloadHandler(
-            file = reactive({
-                paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
-            }),
-            content = function(file) {
-                ggsave(filename = file,
+            content = function(filename) {
+                ggsave(filename = filename,
                        plot = p_bar(),
                        width=16,
                        height=16)

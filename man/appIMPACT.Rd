@@ -7,7 +7,8 @@
 appIMPACT(folder)
 }
 \arguments{
-\item{folder}{Folder path where IMPACT outputs are stored. Typically of format <path_to_impact_folder>/OutputFiles/Scenarios}
+\item{folder}{Folder path where IMPACT outputs are stored.
+Typically of format <path_to_impact_folder>/OutputFiles/Scenarios}
 }
 \value{
 Fires the app for IMPACT runs
