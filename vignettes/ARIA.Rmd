@@ -1,0 +1,81 @@
+---
+title: "ARIA (App foR ImpAct)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ARIA (App foR ImpAct)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Role
+
+App foR ImpAct (ARIA) is an R package which helps in providing a user friendly way to extract and browse some basic results from an IMPACT (International Model for Policy Analysis of Agricultural Commodities and Trade) model run.
+
+## Dependencies
+
+ARIA is built using two R libraries developed in house by the Foresight and Policy Modeling Unit of International Food Policy Research Institute (IFPRI).
+
+The two libraries are `DOORMAT` and `reportIMPACT`, both of which are available on GitHub on the following links:
+
+[https://github.com/IFPRI/DOORMAT](https://github.com/IFPRI/DOORMAT)
+
+[https://github.com/IFPRI/reportIMPACT](https://github.com/IFPRI/reportIMPACT)
+
+## Usage
+
+### Loading library
+
+To browse some basic outputs from ARIA, the first step is to load the required `ARIA` library using:
+
+```{r, warning=FALSE}
+library(ARIA)
+```
+
+### What does the app do?
+
+The core function to fireup the app locally on your computer is called `appIMPACT`.
+
+`appIMPACT` requires the location of the `./OutputFiles/Scenarios` folder loaction in the IMPACT model directory before it can extract the results from a `gdx` file which contains the final outputs from an IMPACT model run.
+
+`appIMPACT` can also take a `base_year` argument to calculate some relative indicators. If this argument is not provided, the app with automatically try to capture the first available datapoint in the IMPACT results for calculation of relative indicators.
+
+### Using the app
+
+The first step is to provide the `folder` argument to `appARIA`. This can be done in two ways:
+
+#### 1. Savig the `./OutputFiles/Scenarios` path in an R object 
+
+This can be done by using
+```{r eval=FALSE}
+my_impact_results_folder <- "<path/to/impact/folder>/OutputFiles/Scenarios"
+```
+
+This object can then be passed on to the `appIMPACT` function
+```{r eval=FALSE}
+appIMPACT(folder = my_impact_results_folder)
+```
+
+#### 2. Passing the `./OutputFiles/Scenarios` path directly to the function call
+
+Alternatively, you can pass on the folder path directly to the app using
+
+```{r eval=FALSE}
+appIMPACT(folder = "<path/to/impact/folder>/OutputFiles/Scenarios")
+```
+
+### App Navigation
+
+Before the app is fired up on your computer, make sure to pay extra attention to the messages on your R console. The app will ask you some questions before processing the results from the `gdx` file(s). The app will also display some messages regarding what it is trying to do in the background.
+
+Once ready with the prompts, the app will fire up with an additional R window or your default browser.
+
+### Questions
+
+In case of questions / problems please contact Abhijeet Mishra (A.Mishra@cgiar.org)

@@ -17,10 +17,14 @@ Imports:
     shinythemes (>= 1.2.0),
     dplyr (>= 1.1.1),
     ggplot2 (>= 3.4.1),
-    DOORMAT (>= 2.3.0),
+    DOORMAT (>= 2.4.0),
     reportIMPACT (>= 2.0.0),
     utils,
     DT (>= 0.27)
 Remotes:
     github::IFPRI/DOORMAT,
     github::IFPRI/reportIMPACT
+Suggests: 
+    knitr (>= 1.42),
+    rmarkdown (>= 2.21)
+VignetteBuilder: knitr

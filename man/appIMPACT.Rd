@@ -2,22 +2,25 @@
 % Please edit documentation in R/appIMPACT.R
 \name{appIMPACT}
 \alias{appIMPACT}
-\title{Title}
+\title{App for IMPACT (App foR ImpAct)}
 \usage{
-appIMPACT(folder)
+appIMPACT(folder, base_year)
 }
 \arguments{
 \item{folder}{Folder path where IMPACT outputs are stored.
-Typically of format <path_to_impact_folder>/OutputFiles/Scenarios}
+
+Typically of format \code{<model_folder>/OutputFiles/Scenarios}}
+
+\item{base_year}{Base year for relative calculations. It will be calulcated automatically if not provided.}
 }
 \value{
 Fires the app for IMPACT runs
 }
 \description{
-Title
+App for IMPACT (App foR ImpAct)
 }
 \examples{
-\dontrun{appIMPACT()}
+\dontrun{appIMPACT(folder = <model_folder>/OutputFiles/Scenarios)}
 }
 \author{
 Abhijeet Mishra

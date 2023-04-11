@@ -1,7 +1,9 @@
-#' Title
+#' App for IMPACT (App foR ImpAct)
 #'
 #' @param folder Folder path where IMPACT outputs are stored.
-#' Typically of format <path_to_impact_folder>/OutputFiles/Scenarios
+#'
+#' Typically of format \code{<model_folder>/OutputFiles/Scenarios}
+#' @param base_year Base year for relative calculations. It will be calulcated automatically if not provided.
 #'
 #' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
 #' @importFrom dplyr case_when %>% filter across group_by mutate
@@ -13,10 +15,14 @@
 #' @author Abhijeet Mishra
 #'
 #' @examples
-#' \dontrun{appIMPACT()}
+#' \dontrun{appIMPACT(folder = <model_folder>/OutputFiles/Scenarios)}
 #' @export
 
-appIMPACT <- function(folder){
+appIMPACT <- function(folder, base_year){
+
+    if(is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
+
+    prep_flag <- as.vector(Sys.info()["effective_user"])
 
     indicator <- region <- yrs <- unit2 <- value <- NULL
 
@@ -38,7 +44,8 @@ appIMPACT <- function(folder){
                                 title="Would you like to convert this\nGDX file into a RDS file now?\nChoosing 'no' will stop the program.")
             if(user_choice == 2) stop("\nCould not convert GDX file to RDS.\nAborting ....... \nHint: Use RDS files if they exist or choose 'yes' at previous prompt")
             cat("Attempting to convert to RDS file ......", "\n")
-            getReport(gdx = file_vector)
+            if(is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag)
+            if(!is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag, base_year = base_year)
             choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
         }
         choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
