@@ -18,9 +18,12 @@
 #' \dontrun{appIMPACT(folder = <model_folder>/OutputFiles/Scenarios)}
 #' @export
 
-appIMPACT <- function(folder, base_year){
+appIMPACT <- function(folder, base_year = NULL){
 
+    cat(paste(rep("=",50), collapse= ""))
     if(is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
+    cat(paste(rep("=",50), collapse= ""))
+
 
     prep_flag <- as.vector(Sys.info()["effective_user"])
 
@@ -28,7 +31,7 @@ appIMPACT <- function(folder, base_year){
 
     files <- grep(pattern = ".gdx",x = list.files(path = folder),value = TRUE)
 
-    choice <- select.list(choices = files, title = "Please Select IMPACT runs:",
+    choice <- select.list(choices = files, title = "\nPlease Select IMPACT runs:",
                           multiple = TRUE,
                           graphics = getOption("menu.graphics"))
 

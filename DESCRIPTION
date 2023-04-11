@@ -16,7 +16,7 @@ Imports:
     shiny (>= 1.7.4),
     shinythemes (>= 1.2.0),
     dplyr (>= 1.1.1),
-    ggplot2 (>= 3.4.1),
+    ggplot2 (>= 3.4.2),
     DOORMAT (>= 2.4.0),
     reportIMPACT (>= 2.0.0),
     utils,

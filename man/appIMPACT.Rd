@@ -4,7 +4,7 @@
 \alias{appIMPACT}
 \title{App for IMPACT (App foR ImpAct)}
 \usage{
-appIMPACT(folder, base_year)
+appIMPACT(folder, ...)
 }
 \arguments{
 \item{folder}{Folder path where IMPACT outputs are stored.
