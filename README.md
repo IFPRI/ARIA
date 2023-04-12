@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/IFPRI/ARIA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IFPRI/ARIA/actions/workflows/R-CMD-check.yaml)
+[![license](https://img.shields.io/badge/Licence-GPL%20(%3E%3D%203)-red)](https://github.com/IFPRI/reportIMPACT/blob/master/LICENSE.md)
 <!-- badges: end -->
 
 ARIA package delivers a standalone app for user friendly generation of
