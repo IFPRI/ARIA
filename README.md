@@ -13,9 +13,8 @@ basic IMPACT results.
 
 ## Installation
 
-Package `DOORMAT` and
-``` reportIMPACT`` are required for proper functioning of the ```reportIMPACT\`
-package. It can be installed with
+Package `DOORMAT` and `reportIMPACT` are required for proper functioning
+of the `ARIA` package. It can be installed with
 
 ``` r
 # install.packages("devtools")
@@ -29,6 +28,14 @@ You can install the latest version of ARIA from
 ``` r
 # install.packages("devtools")
 devtools::install_github("IFPRI/ARIA")
+```
+
+## Vignette
+
+An ARIA tutorial for using the app can be accessed using
+
+``` r
+vignette("ARIA")
 ```
 
 ## Questions / Problems
