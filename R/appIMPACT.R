@@ -101,7 +101,8 @@ appIMPACT <- function(folder, base_year = NULL){
                 fluidRow(column(4,
                                 radioButtons(inputId = "line_plot_type" ,
                                              label = "Select the plot type",
-                                             choices = c("Default", "Relative", "Index" ))),
+                                             choices = c("None","Relative", "Index" ),
+                                             selected = "None")),
                          column(4,
                                 checkboxInput("free_y", label = strong("Free Y-axis"),
                                               value = FALSE,
@@ -164,8 +165,8 @@ appIMPACT <- function(folder, base_year = NULL){
                 filter(indicator == input$indicator) %>%
                 filter(region %in% input$region) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
-                                            input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                            input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
                                             input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
                 )
                 )
@@ -178,8 +179,8 @@ appIMPACT <- function(folder, base_year = NULL){
                 filter(indicator == input$indicator) %>%
                 filter(region %in% setdiff(input$region,"GLO")) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
-                                            input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                            input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
                                             input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
                 )
                 )
@@ -189,11 +190,11 @@ appIMPACT <- function(folder, base_year = NULL){
         p_line <-  reactive({
             ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
                 theme_minimal(base_size = 25) +
-                facet_wrap(region~unit2) +
-                {if(input$free_y) facet_wrap(region~unit2, scales = "free_y")}+
+                facet_wrap(region~.) +
+                {if(input$free_y) facet_wrap(region~., scales = "free_y")}+
                 geom_line(aes(color=dfx()$flag, group=dfx()$flag), linewidth =1.3) +
                 geom_point(shape=1, size = 1.4) +
-                ylab(unique(dfx()$unit)) +
+                ylab(unique(dfx()$unit2)) +
                 xlab("Years") +
                 ggtitle(unique(dfx()$indicator)) +
                 {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), " (change)"))} +
@@ -234,8 +235,8 @@ appIMPACT <- function(folder, base_year = NULL){
                               filter(indicator == input$indicator) %>%
                               filter(region %in% input$region) %>%
                               filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                              filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
-                                                          input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
+                              filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                                          input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
                                                           input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
                                                           )
                                      ) %>%
@@ -254,10 +255,9 @@ appIMPACT <- function(folder, base_year = NULL){
                               filter(indicator == input$indicator) %>%
                               filter(region %in% input$region) %>%
                               filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                              filter(unit2 %in% case_when(input$line_plot_type == "Default" ~ unique(grep("Default", unit2, value = TRUE)),
-                                                          input$line_plot_type == "Relative" ~ unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),
-                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
-                                                          )
+                              filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                                          input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
+                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
                                      ) %>%
                               group_by(across(c("model","region","indicator","unit","unit2","flag"))) %>%
                               mutate(delta_base_YEAR = paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1),2),"%")) %>%
