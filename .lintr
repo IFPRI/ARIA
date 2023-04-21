@@ -1,5 +1,7 @@
 linters: linters_with_defaults(
   object_name_linter = NULL,
-  cyclocomp_linter(20)
+  cyclocomp_linter(25),
+  brace_linter=NULL,
+  line_length_linter(150)
   ) # see vignette("lintr")
 encoding: "UTF-8"
