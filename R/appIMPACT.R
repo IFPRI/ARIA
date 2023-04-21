@@ -18,10 +18,10 @@
 #' \dontrun{appIMPACT(folder = <model_folder>/OutputFiles/Scenarios)}
 #' @export
 
-appIMPACT <- function(folder, base_year = NULL){
+appIMPACT <- function(folder, base_year = NULL) {
 
     cat(paste(rep("=",50), collapse= ""))
-    if(is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
+    if (is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
     cat(paste(rep("=",50), collapse= ""))
 
 
@@ -37,26 +37,26 @@ appIMPACT <- function(folder, base_year = NULL){
 
     skip_next_choice = FALSE
 
-    for(file_vector in paste0(folder,"/",choice)){
-        if(file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
+    for (file_vector in paste0(folder,"/",choice)) {
+        if (file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
             cat("A preprocessed RDS file already exists for ",basename(file_vector), "\n")
             cat("You might want to run getReport() on this gdx file manually if you want to run fresh reporting", "\n")
             cat("Porceeding with existing RDS file for this IMPACT run.", "\n")
         }
-        if(!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
+        if (!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
             cat("No preprocessed RDS file exists for ",basename(file_vector), "\n")
-            if(!skip_next_choice){
+            if (!skip_next_choice) {
                 user_choice <- menu(c("Yes", "No"),
                                     title="Would you like to convert this\nGDX file into a RDS file now?\nChoosing 'no' will stop the program.")
             }
-            if(user_choice == 1) {
+            if (user_choice == 1) {
                 skip_next_choice = TRUE
                 user_choice = 1
                 }
-            if(user_choice == 2) stop("\nCould not convert GDX file to RDS.\nAborting ....... \nHint: Use RDS files if they exist or choose 'yes' at previous prompt")
+            if (user_choice == 2) stop("\nCould not convert GDX file to RDS.\nAborting ....... \nHint: Use RDS files if they exist or choose 'yes' at previous prompt")
             cat("Attempting to convert to RDS file ......", "\n")
-            if(is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag)
-            if(!is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag, base_year = base_year)
+            if (is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag)
+            if (!is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag, base_year = base_year)
             choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
         }
         choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
@@ -64,7 +64,7 @@ appIMPACT <- function(folder, base_year = NULL){
 
     df_prep <- NULL
 
-    for(file_vector in paste0(folder,"/",choice)){
+    for (file_vector in paste0(folder,"/",choice)) {
         cat("Reading ",basename(file_vector), "\n")
         df <- readRDS(file_vector)
         df$flag <- gsub(pattern = ".rds",replacement = "",x = basename(file_vector))
@@ -206,17 +206,17 @@ appIMPACT <- function(folder, base_year = NULL){
             ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
                 theme_minimal(base_size = 25) +
                 facet_wrap(region~.) +
-                {if(input$free_y) facet_wrap(region~., scales = "free_y")}+
+                {if (input$free_y) facet_wrap(region~., scales = "free_y")}+
                 geom_line(aes(color=dfx()$flag, group=dfx()$flag), linewidth =1.3) +
                 geom_point(shape=1, size = 1.4) +
                 ylab(unique(dfx()$unit2)) +
                 xlab("Years") +
                 ggtitle(unique(dfx()$indicator)) +
-                {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), " (change)"))} +
-                {if(input$line_plot_type == "Index") ggtitle(paste0(unique(dfx()$indicator), " (index)"))} +
+                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), " (change)"))} +
+                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx()$indicator), " (index)"))} +
                 theme(legend.position = "bottom",legend.direction = "vertical") +
-                {if(input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
-                {if(input$line_plot_type == "Index") geom_hline(yintercept = 1, linetype="longdash", linewidth = 1.2, color = "gray")} +
+                {if (input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
+                {if (input$line_plot_type == "Index") geom_hline(yintercept = 1, linetype="longdash", linewidth = 1.2, color = "gray")} +
                 theme(axis.text.x = element_text(angle = 90)) +
                 guides(color=guide_legend(title="IMPACT Run"))
         })
@@ -225,17 +225,17 @@ appIMPACT <- function(folder, base_year = NULL){
             ggplot(dfx_bar(), aes(x = dfx_bar()$yrs, y = dfx_bar()$value)) +
                 theme_minimal(base_size = 25) +
                 facet_wrap(.~flag) +
-                #    {if(free_y) facet_wrap(.~region, scales = "free_y")}+
+                #    {if (free_y) facet_wrap(.~region, scales = "free_y")}+
                 geom_area(position='stack',aes(fill=dfx_bar()$region,group=dfx_bar()$region),color="black") +
                 stat_summary(fun = sum, geom = "line", size = 2) +
                 ylab(unique(dfx_bar()$unit)) +
                 xlab("Years") +
                 ggtitle(unique(dfx_bar()$indicator)) +
-                {if(input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), " (change)"))} +
-                {if(input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), " (index)"))} +
+                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), " (change)"))} +
+                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), " (index)"))} +
                 theme(legend.position = "bottom") +
-                {if(input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
-                {if(input$line_plot_type == "Index") geom_hline(yintercept = 0, linetype="longdash", linewidth = 1.2, color = "gray")} +
+                {if (input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
+                {if (input$line_plot_type == "Index") geom_hline(yintercept = 0, linetype="longdash", linewidth = 1.2, color = "gray")} +
                 theme(axis.text.x = element_text(angle = 90)) +
                 guides(fill=guide_legend(title="Regions"))
         })
