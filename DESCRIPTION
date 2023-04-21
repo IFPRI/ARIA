@@ -1,7 +1,7 @@
 Package: ARIA
 Type: Package
 Title: App for IMPACT (App foR ImpAct)
-Version: 2.3.0
+Version: 2.4.0
 Authors@R: 
     person("Abhijeet", "Mishra",  , "A.Mishra@cgiar.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8287-9922"))
@@ -17,8 +17,8 @@ Imports:
     shinythemes (>= 1.2.0),
     dplyr (>= 1.1.1),
     ggplot2 (>= 3.4.2),
-    DOORMAT (>= 2.4.0),
-    reportIMPACT (>= 2.0.0),
+    DOORMAT (>= 2.8.0),
+    reportIMPACT (>= 3.4.0),
     utils,
     DT (>= 0.27)
 Remotes:
