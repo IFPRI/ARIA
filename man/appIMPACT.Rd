@@ -14,7 +14,7 @@ Typically of format \code{<model_folder>/OutputFiles/Scenarios}}
 \item{base_year}{Base year for relative calculations. It will be calulcated automatically if not provided.}
 }
 \value{
-Fires the app for IMPACT runs
+Fires the app for Scenarios
 }
 \description{
 App for IMPACT (App foR ImpAct)

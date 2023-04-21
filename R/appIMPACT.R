@@ -20,6 +20,8 @@
 
 appIMPACT <- function(folder, base_year = NULL) {
 
+    c <- flag <- NULL
+
     cat(paste(rep("=", 50), collapse = ""))
     if(is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
     cat(paste(rep("=", 50), collapse = ""))
