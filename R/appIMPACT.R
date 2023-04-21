@@ -3,7 +3,8 @@
 #' @param folder Folder path where IMPACT outputs are stored.
 #'
 #' Typically of format \code{<model_folder>/OutputFiles/Scenarios}
-#' @param base_year Base year for relative calculations. It will be calulcated automatically if not provided.
+#' @param base_year Base year for relative calculations.
+#' It will be calculated automatically if not provided.
 #'
 #' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
 #' @importFrom dplyr case_when %>% filter across group_by mutate
@@ -20,16 +21,18 @@
 
 appIMPACT <- function(folder, base_year = NULL) {
 
-    cat(paste(rep("=",50), collapse= ""))
-    if (is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
-    cat(paste(rep("=",50), collapse= ""))
+    cat(paste(rep("=", 50), collapse = ""))
+    if (is.null(base_year)) cat(
+        "\nNo base year provided.\n
+        Using the first available datapoint for base year calculation(s).\n")
+    cat(paste(rep("=", 50), collapse = ""))
 
 
     prep_flag <- as.vector(Sys.info()["effective_user"])
 
     indicator <- region <- yrs <- unit2 <- value <- NULL
 
-    files <- grep(pattern = ".gdx",x = list.files(path = folder),value = TRUE)
+    files <- grep(pattern = ".gdx", x = list.files(path = folder),value = TRUE)
 
     choice <- select.list(choices = files, title = "\nPlease Select IMPACT runs:",
                           multiple = TRUE,
@@ -37,14 +40,14 @@ appIMPACT <- function(folder, base_year = NULL) {
 
     skip_next_choice = FALSE
 
-    for (file_vector in paste0(folder,"/",choice)) {
-        if (file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
-            cat("A preprocessed RDS file already exists for ",basename(file_vector), "\n")
+    for (file_vector in paste0(folder,"/", choice)) {
+        if (file.exists(gsub(pattern = ".gdx", replacement = ".rds", x = (file_vector)))) {
+            cat("A preprocessed RDS file already exists for ", basename(file_vector), "\n")
             cat("You might want to run getReport() on this gdx file manually if you want to run fresh reporting", "\n")
             cat("Porceeding with existing RDS file for this IMPACT run.", "\n")
         }
-        if (!file.exists(gsub(pattern = ".gdx",replacement = ".rds",x = (file_vector)))) {
-            cat("No preprocessed RDS file exists for ",basename(file_vector), "\n")
+        if (!file.exists(gsub(pattern = ".gdx", replacement = ".rds", x = (file_vector)))) {
+            cat("No preprocessed RDS file exists for ", basename(file_vector), "\n")
             if (!skip_next_choice) {
                 user_choice <- menu(c("Yes", "No"),
                                     title="Would you like to convert this\nGDX file into a RDS file now?\nChoosing 'no' will stop the program.")
@@ -57,17 +60,17 @@ appIMPACT <- function(folder, base_year = NULL) {
             cat("Attempting to convert to RDS file ......", "\n")
             if (is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag)
             if (!is.null(base_year)) getReport(gdx = file_vector, prep_flag = prep_flag, base_year = base_year)
-            choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
+            choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx", replacement = ".rds", x = basename(file_vector))
         }
-        choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx",replacement = ".rds",x = basename(file_vector))
+        choice[choice == basename(file_vector)] <- gsub(pattern = ".gdx", replacement = ".rds", x = basename(file_vector))
     }
 
     df_prep <- NULL
 
-    for (file_vector in paste0(folder,"/",choice)) {
-        cat("Reading ",basename(file_vector), "\n")
+    for (file_vector in paste0(folder,"/", choice)) {
+        cat("Reading ", basename(file_vector), "\n")
         df <- readRDS(file_vector)
-        df$flag <- gsub(pattern = ".rds",replacement = "",x = basename(file_vector))
+        df$flag <- gsub(pattern = ".rds", replacement = "", x = basename(file_vector))
         df_prep <- rbind(df_prep,df)
     }
 
@@ -88,7 +91,7 @@ appIMPACT <- function(folder, base_year = NULL) {
                             choices = unique(df_prep$indicator),
                             selected = "Population"),
 
-                selectInput(inputId = "region","Regions",
+                selectInput(inputId = "region", "Regions",
                             choices = unique(df_prep$region),
                             multiple = TRUE,
                             selected = unique(df_prep$region)),
@@ -107,9 +110,9 @@ appIMPACT <- function(folder, base_year = NULL) {
                 # checkboxInput("unit_index", "Line plot - index", value = F),
 
                 fluidRow(column(4,
-                                radioButtons(inputId = "line_plot_type" ,
+                                radioButtons(inputId = "line_plot_type", ,
                                              label = "Select the plot type",
-                                             choices = c("None","Relative", "Index" ),
+                                             choices = c("None", "Relative", "Index", ),
                                              selected = "None")),
                          column(4,
                                 checkboxInput("free_y", label = strong("Free Y-axis"),
@@ -123,7 +126,7 @@ appIMPACT <- function(folder, base_year = NULL) {
                             selected = unique(df_prep$flag)),
 
                 selectInput(inputId = "base_run", label = strong("BASE run"),
-                            choices = c("",unique(df_prep$flag)),
+                            choices = c("", unique(df_prep$flag)),
                             selected = NULL,
                             multiple = FALSE),
 
@@ -141,9 +144,9 @@ appIMPACT <- function(folder, base_year = NULL) {
             mainPanel(
                 tabsetPanel(type = "tabs",
                             tabPanel("Line plot",
-                                     plotOutput(outputId="plotgraph", width="1400px",height="900px")),
+                                     plotOutput(outputId="plotgraph", width="1400px", height="900px")),
                             tabPanel("Area Plot",
-                                     plotOutput(outputId="areaplot", width="1400px",height="900px")),
+                                     plotOutput(outputId="areaplot", width="1400px", height="900px")),
                             tabPanel("Comparison to base RUN",
                                      DT::dataTableOutput(outputId = 'compare_df')),
                             tabPanel("Comparison to base YEAR",
@@ -179,9 +182,9 @@ appIMPACT <- function(folder, base_year = NULL) {
                 filter(region %in% input$region) %>%
                 filter(flag %in% input$flag) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
-                                            input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
-                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                filter(unit2 %in% case_when(input$line_plot_type == "None", ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                            input$line_plot_type == "Relative", ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
+                                            input$line_plot_type == "Index", ~ unique(grep("Index", unit2, value = TRUE))
                 )
                 )
         })
@@ -194,9 +197,9 @@ appIMPACT <- function(folder, base_year = NULL) {
                 filter(region %in% setdiff(input$region,"GLO")) %>%
                 filter(flag %in% input$flag) %>%
                 filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
-                                            input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
-                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                filter(unit2 %in% case_when(input$line_plot_type == "None", ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                            input$line_plot_type == "Relative", ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
+                                            input$line_plot_type == "Index", ~ unique(grep("Index", unit2, value = TRUE))
                 )
                 )
         })
@@ -212,9 +215,9 @@ appIMPACT <- function(folder, base_year = NULL) {
                 ylab(unique(dfx()$unit2)) +
                 xlab("Years") +
                 ggtitle(unique(dfx()$indicator)) +
-                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), " (change)"))} +
-                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx()$indicator), " (index)"))} +
-                theme(legend.position = "bottom",legend.direction = "vertical") +
+                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx()$indicator), ", (change)"))} +
+                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx()$indicator), ", (index)"))} +
+                theme(legend.position = "bottom", legend.direction = "vertical") +
                 {if (input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
                 {if (input$line_plot_type == "Index") geom_hline(yintercept = 1, linetype="longdash", linewidth = 1.2, color = "gray")} +
                 theme(axis.text.x = element_text(angle = 90)) +
@@ -231,8 +234,8 @@ appIMPACT <- function(folder, base_year = NULL) {
                 ylab(unique(dfx_bar()$unit)) +
                 xlab("Years") +
                 ggtitle(unique(dfx_bar()$indicator)) +
-                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), " (change)"))} +
-                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), " (index)"))} +
+                {if (input$line_plot_type == "Relative") ggtitle(paste0(unique(dfx_bar()$indicator), ", (change)"))} +
+                {if (input$line_plot_type == "Index") ggtitle(paste0(unique(dfx_bar()$indicator), ", (index)"))} +
                 theme(legend.position = "bottom") +
                 {if (input$line_plot_type == "Relative") geom_hline(yintercept = 0, linetype="longdash", linewidth =1.2, color = "gray")} +
                 {if (input$line_plot_type == "Index") geom_hline(yintercept = 0, linetype="longdash", linewidth = 1.2, color = "gray")} +
@@ -246,19 +249,19 @@ appIMPACT <- function(folder, base_year = NULL) {
 
         output$compare_df <- DT::renderDataTable({
 
-            DT::datatable(df_prep[,c("model","region","yrs","indicator","value","unit","unit2","flag")] %>%
+            DT::datatable(df_prep[,c("model", "region", "yrs", "indicator", "value", "unit", "unit2", "flag")] %>%
                               filter(indicator == input$indicator) %>%
                               filter(region %in% input$region) %>%
                               filter(flag %in% input$flag) %>%
                               filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                              filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
-                                                          input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
-                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
+                              filter(unit2 %in% case_when(input$line_plot_type == "None", ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                                          input$line_plot_type == "Relative", ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
+                                                          input$line_plot_type == "Index", ~ unique(grep("Index", unit2, value = TRUE))
                                                           )
                                      ) %>%
-                              group_by(across(c("model","region","indicator","unit","unit2","yrs"))) %>%
+                              group_by(across(c("model", "region", "indicator", "unit", "unit2", "yrs"))) %>%
                               mutate(delta_base_RUN = case_when(!is.null(input$base_run) ~ paste0(round(100 * ((value / value[flag == input$base_run]) - 1),2),"%"),
-                                                                input$base_run == "" ~ paste0("Select base run"))
+                                                                input$base_run == "", ~ paste0("Select base run"))
                                      ) %>%
                               filter(case_when(!is.null(input$base_run) ~ flag %in% setdiff(unique(df_prep$flag),input$base_run))) %>%
                               filter(yrs == input$year[2]) %>%
@@ -267,16 +270,16 @@ appIMPACT <- function(folder, base_year = NULL) {
         })
 
         output$compare_df_year <- DT::renderDataTable({
-            DT::datatable(df_prep[,c("model","region","yrs","indicator","value","unit","unit2","flag")] %>%
+            DT::datatable(df_prep[,c("model", "region", "yrs", "indicator", "value", "unit", "unit2", "flag")] %>%
                               filter(indicator == input$indicator) %>%
                               filter(region %in% input$region) %>%
                               filter(flag %in% input$flag) %>%
                               filter(yrs %in% c(input$year[1]:input$year[2])) %>%
-                              filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
-                                                          input$line_plot_type == "Relative" ~ unique(grep("wrt",unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
-                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
+                              filter(unit2 %in% case_when(input$line_plot_type == "None", ~ unique(grep("wrt", unit2, value = TRUE,invert = TRUE)),
+                                                          input$line_plot_type == "Relative", ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert=TRUE)),value=T)),
+                                                          input$line_plot_type == "Index", ~ unique(grep("Index", unit2, value = TRUE)))
                                      ) %>%
-                              group_by(across(c("model","region","indicator","unit","unit2","flag"))) %>%
+                              group_by(across(c("model", "region", "indicator", "unit", "unit2", "flag"))) %>%
                               mutate(delta_base_YEAR = paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1),2),"%")) %>%
                               filter(yrs == input$year[2]) %>%
                               mutate(value = round(value,2))
@@ -293,7 +296,7 @@ appIMPACT <- function(folder, base_year = NULL) {
 
         output$downloadPlot <- downloadHandler(
             filename = reactive({
-                paste0(dfx()$indicator,"_LP_",input$line_plot_type,'.png', sep='')
+                paste0(dfx()$indicator,"_LP_", input$line_plot_type,'.png', sep='')
                 }),
             content = function(filename) {
                 ggsave(filename = filename,
@@ -304,7 +307,7 @@ appIMPACT <- function(folder, base_year = NULL) {
 
         output$downloadPlotArea <- downloadHandler(
             filename = reactive({
-                paste0(dfx()$indicator,"_SA_",input$line_plot_type,'.png', sep='')
+                paste0(dfx()$indicator,"_SA_", input$line_plot_type,'.png', sep='')
             }),
             content = function(filename) {
                 ggsave(filename = filename,
