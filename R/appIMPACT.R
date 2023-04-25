@@ -22,11 +22,6 @@ appIMPACT <- function(folder, base_year = NULL) {
 
     c <- flag <- NULL
 
-    cat(paste(rep("=", 50), collapse = ""))
-    if(is.null(base_year)) cat("\nNo base year provided.\nUsing the first available datapoint for base year calculation(s).\n")
-    cat(paste(rep("=", 50), collapse = ""))
-
-
     prep_flag <- as.vector(Sys.info()["effective_user"])
 
     indicator <- region <- yrs <- unit2 <- value <- NULL
@@ -217,7 +212,7 @@ appIMPACT <- function(folder, base_year = NULL) {
 
         p_line <-  reactive({
             ggplot(dfx(), aes(x = dfx()$yrs, y = dfx()$value)) +
-                theme_minimal(base_size = 25) +
+                theme_bw(base_size = 25) +
                 facet_wrap(region~., scales = scales()) +
                 geom_line(aes(color=dfx()$flag, group = dfx()$flag), linewidth =1.3) +
                 geom_point(shape=1, size = 1.4) +
@@ -232,7 +227,7 @@ appIMPACT <- function(folder, base_year = NULL) {
 
         p_bar <-  reactive({
             ggplot(dfx_bar(), aes(x = dfx_bar()$yrs, y = dfx_bar()$value)) +
-                theme_minimal(base_size = 25) +
+                theme_bw(base_size = 25) +
                 facet_wrap(.~flag) +
                 #    {if(free_y) facet_wrap(.~region, scales = "free_y")}+
                 geom_area(position='stack',aes(fill=dfx_bar()$region,group=dfx_bar()$region),color="black") +
