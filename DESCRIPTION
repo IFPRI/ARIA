@@ -2,15 +2,9 @@ Package: ARIA
 Type: Package
 Title: App for IMPACT (App foR ImpAct)
 Version: 2.4.0
-Authors@R: 
-  c(person(given = "Abhijeet",
-           family = "Mishra",
-           role = c("aut", "cre"),
-           email = "A.Mishra@cgiar.org",
-           comment = c(ORCID = "0000-0002-8287-9922")))
-Maintainer@R: Authors@R: 
-    person("Abhijeet", "Mishra",  , "A.Mishra@cgiar.org", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-8287-9922"))
+Authors@R: c(
+    person("Abhijeet", "Mishra", , "A.Mishra@cgiar.org", role = c("aut", "cre"))
+    )
 Description: App for IMPACT (App foR ImpAct).
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -20,12 +14,10 @@ Imports:
     shinythemes (>= 1.2.0),
     dplyr (>= 1.1.1),
     ggplot2 (>= 3.4.2),
-    DOORMAT (>= 2.8.0),
-    reportIMPACT (>= 3.4.0),
     utils,
-    DT (>= 0.27)
+    DT (>= 0.27),
+    reportIMPACT (>= 4.0.0)
 Remotes:
-    github::IFPRI/DOORMAT,
     github::IFPRI/reportIMPACT
 Suggests: 
     knitr (>= 1.42),

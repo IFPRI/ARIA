@@ -5,10 +5,11 @@
 #' Typically of format \code{<model_folder>/OutputFiles/Scenarios}
 #' @param base_year Base year for relative calculations. It will be calulcated automatically if not provided.
 #'
-#' @import shiny shinythemes DOORMAT reportIMPACT DOORMAT reportIMPACT ggplot2
+#' @import shiny shinythemes ggplot2
 #' @importFrom dplyr case_when %>% filter across group_by mutate
 #' @importFrom utils select.list menu
 #' @importFrom tools file_ext
+#' @importFrom reportIMPACT getReport
 #' @return Fires the app for Scenarios
 #' @export
 #'
