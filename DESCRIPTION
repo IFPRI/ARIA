@@ -20,7 +20,7 @@ Imports:
 Remotes: IFPRI/reportIMPACT
 Suggests: 
     knitr (>= 1.42),
-    rmarkdown (>= 2.21)
+    rmarkdown (>= 2.21),
     ARIA
 Additional_repositories: https://ifpri.github.io/drat
 VignetteBuilder: knitr
