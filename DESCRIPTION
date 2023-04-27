@@ -1,7 +1,7 @@
 Package: ARIA
 Type: Package
 Title: App for IMPACT (App foR ImpAct)
-Version: 2.4.1
+Version: 2.4.2
 Authors@R: c(
     person("Abhijeet", "Mishra", , "A.Mishra@cgiar.org", role = c("aut", "cre"))
     )
@@ -21,6 +21,6 @@ Remotes: IFPRI/reportIMPACT
 Suggests: 
     knitr (>= 1.42),
     rmarkdown (>= 2.21),
-    ARIA (>= 2.4.0)
+    ARIA (>= 2.4.1)
 Additional_repositories: https://ifpri.github.io/drat
 VignetteBuilder: knitr
