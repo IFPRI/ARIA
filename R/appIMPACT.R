@@ -23,7 +23,7 @@ appIMPACT <- function(folder, base_year = NULL) {
 
     c <- flag <- NULL
 
-    prep_flag <- as.vector(Sys.info()["effective_user"])
+    prep_flag <- as.vector(Sys.info()["effective_user"]) # Pull user
 
     indicator <- region <- yrs <- unit2 <- value <- NULL
 
