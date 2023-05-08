@@ -25,9 +25,8 @@ appIMPACT <- function(folder, base_year = NULL) {
 
     indicator <- region <- yrs <- unit2 <- value <- NULL
 
-    choice <- rdsMaker(folder = folder, base_year = base_year)
-
-    choice <- gsub(pattern = "gdx", replacement = "rds", x = choice)
+    choice <- gsub(pattern = "gdx", replacement = "rds",
+                   x = rdsMaker(folder = folder, base_year = base_year))
 
     df_prep <- NULL
 

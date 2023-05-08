@@ -48,12 +48,6 @@ rdsMaker <- function(folder, base_year = NULL) {
             }
             if (user_choice == 1) {
                 skip_next_choice <- TRUE
-                user_choice <- 1
-            }
-            if (user_choice == 2) {
-                txt1 <- "Could not convert GDX file to RDS. Aborting ....... "
-                txt2 <- "Hint: Use RDS files if they exist or choose 'yes' at previous prompt"
-                stop(paste0(txt1, txt2))
                 cat("Attempting to convert to RDS file ......", "\n")
                 if (is.null(base_year)) getReport(gdx = file_vector,
                                                   prep_flag = prep_flag)
@@ -64,11 +58,19 @@ rdsMaker <- function(folder, base_year = NULL) {
                     gsub(pattern = ".gdx",
                          replacement = ".rds",
                          x = basename(file_vector))
+                user_choice <- 1
             }
+
             choice[choice == basename(file_vector)] <-
                 gsub(pattern = ".gdx",
                      replacement = ".rds",
                      x = basename(file_vector))
+
+            if (user_choice == 2) {
+                txt1 <- "Could not convert GDX file to RDS. Aborting ....... "
+                txt2 <- "Hint: Use RDS files if they exist or choose 'yes' at previous prompt"
+                stop(paste0(txt1, txt2))
+            }
         }
     }
     return(choice)
