@@ -1,7 +1,7 @@
 Package: ARIA
 Type: Package
 Title: App for IMPACT (App foR ImpAct)
-Version: 2.4.2
+Version: 2.4.3
 Authors@R: c(
     person("Abhijeet", "Mishra", , "A.Mishra@cgiar.org", role = c("aut", "cre"))
     )
@@ -12,15 +12,15 @@ RoxygenNote: 7.2.3
 Imports: 
     shiny (>= 1.7.4),
     shinythemes (>= 1.2.0),
-    dplyr (>= 1.1.1),
+    dplyr (>= 1.1.2),
     ggplot2 (>= 3.4.2),
     utils,
     DT (>= 0.27),
-    reportIMPACT (>= 4.1.2)
+    reportIMPACT (>= 4.9.0)
 Remotes: IFPRI/reportIMPACT
 Suggests: 
     knitr (>= 1.42),
     rmarkdown (>= 2.21),
-    ARIA (>= 2.4.1)
+    ARIA (>= 2.4.2)
 Additional_repositories: https://ifpri.github.io/drat
 VignetteBuilder: knitr
