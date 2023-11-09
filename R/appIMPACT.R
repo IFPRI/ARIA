@@ -52,16 +52,16 @@ appIMPACT <- function(folder, base_year = NULL) {
 
             sidebarPanel(
 
-                selectInput(inputId = "indicator", label = strong("Indicator"),
+                selectInput(inputId = "s_indicator", label = strong("Indicator"),
                             choices = unique(df_prep$indicator),
                             selected = "Population"),
 
-                selectInput(inputId = "region", "Regions",
+                selectInput(inputId = "s_region", "Regions",
                             choices = unique(df_prep$region),
                             multiple = TRUE,
                             selected = unique(df_prep$region)),
 
-                sliderInput(inputId = "year", label = strong("Year"),
+                sliderInput(inputId = "s_year", label = strong("Year"),
                             min = min(df_prep$yrs),
                             value = c(min(df_prep$yrs), max(df_prep$yrs)),
                             max = max(df_prep$yrs),
@@ -79,12 +79,12 @@ appIMPACT <- function(folder, base_year = NULL) {
                                               width = NULL))
                 ),
 
-                selectInput(inputId = "flag", label = strong("Scenarios"),
+                selectInput(inputId = "s_flag", label = strong("Scenarios"),
                             choices = unique(df_prep$flag),
                             multiple = TRUE,
                             selected = unique(df_prep$flag)),
 
-                selectInput(inputId = "base_run", label = strong("BASE run"),
+                selectInput(inputId = "s_base_run", label = strong("BASE run"),
                             choices = c("", unique(df_prep$flag)),
                             selected = NULL,
                             multiple = FALSE),
@@ -137,14 +137,13 @@ appIMPACT <- function(folder, base_year = NULL) {
             class(df_prep) <- "data.frame"
 
             df_prep %>%
-                filter(indicator == input$indicator) %>%
-                filter(region %in% input$region) %>%
-                filter(flag %in% input$flag) %>%
-                filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                filter(indicator == input$s_indicator) %>%
+                filter(region %in% input$s_region) %>%
+                filter(flag %in% input$s_flag) %>%
+                filter(yrs %in% c(input$s_year[1]:input$s_year[2])) %>%
                 filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE, invert = TRUE)),
                                             input$line_plot_type == "Relative" ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert = TRUE)), value = TRUE)),
-                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
-                )
+                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
                 )
         })
 
@@ -152,14 +151,13 @@ appIMPACT <- function(folder, base_year = NULL) {
             class(df_prep) <- "data.frame"
 
             df_prep %>%
-                filter(indicator == input$indicator) %>%
-                filter(region %in% setdiff(input$region, "GLO")) %>%
-                filter(flag %in% input$flag) %>%
-                filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                filter(indicator == input$s_indicator) %>%
+                filter(region %in% setdiff(input$s_region, "GLO")) %>%
+                filter(flag %in% input$s_flag) %>%
+                filter(yrs %in% c(input$s_year[1]:input$s_year[2])) %>%
                 filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE, invert = TRUE)),
                                             input$line_plot_type == "Relative" ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert = TRUE)), value = TRUE)),
-                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
-                )
+                                            input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
                 )
         })
 
@@ -219,38 +217,37 @@ appIMPACT <- function(folder, base_year = NULL) {
         output$compare_df <- DT::renderDataTable({
 
             DT::datatable(df_prep[, c("model", "region", "yrs", "indicator", "value", "unit", " unit2", "flag")] %>%
-                              filter(indicator == input$indicator) %>%
-                              filter(region %in% input$region) %>%
-                              filter(flag %in% input$flag) %>%
-                              filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                              filter(indicator == input$s_indicator) %>%
+                              filter(region %in% input$s_region) %>%
+                              filter(flag %in% input$s_flag) %>%
+                              filter(yrs %in% c(input$s_year[1]:input$s_year[2])) %>%
                               filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE, invert = TRUE)),
                                                           input$line_plot_type == "Relative" ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert = TRUE)), value = TRUE)),
-                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE))
-                              )
+                                                          input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
                               ) %>%
                               group_by(across(c("model", "region", "indicator", "unit", "unit2", "yrs"))) %>%
-                              mutate(delta_base_RUN = case_when(!is.null(input$base_run) ~ paste0(round(100 * ((value / value[flag == input$base_run]) - 1), 2), "%"),
-                                                                input$base_run == "" ~ paste0("Select base run"))
+                              mutate(delta_base_RUN = case_when(!is.null(input$s_base_run) ~ paste0(round(100 * ((value / value[flag == input$s_base_run]) - 1), 2), "%"),
+                                                                input$s_base_run == "" ~ paste0("Select base run"))
                               ) %>%
-                              filter(case_when(!is.null(input$base_run) ~ flag %in% setdiff(unique(df_prep$flag), input$base_run))) %>%
-                              filter(yrs == input$year[2]) %>%
+                              filter(case_when(!is.null(input$s_base_run) ~ flag %in% setdiff(unique(df_prep$flag), input$s_base_run))) %>%
+                              filter(yrs == input$s_year[2]) %>%
                               mutate(value = round(value, 2))
             )
         })
 
         output$compare_df_year <- DT::renderDataTable({
             DT::datatable(df_prep[, c("model", "region", "yrs", "indicator", "value", "unit", "unit2", "flag")] %>%
-                              filter(indicator == input$indicator) %>%
-                              filter(region %in% input$region) %>%
-                              filter(flag %in% input$flag) %>%
-                              filter(yrs %in% c(input$year[1]:input$year[2])) %>%
+                              filter(indicator == input$s_indicator) %>%
+                              filter(region %in% input$s_region) %>%
+                              filter(flag %in% input$s_flag) %>%
+                              filter(yrs %in% c(input$s_year[1]:input$s_year[2])) %>%
                               filter(unit2 %in% case_when(input$line_plot_type == "None" ~ unique(grep("wrt", unit2, value = TRUE, invert = TRUE)),
                                                           input$line_plot_type == "Relative" ~ unique(grep("wrt", unique(grep("Index|Default", unit2, value = TRUE, invert = TRUE)), value = TRUE)),
                                                           input$line_plot_type == "Index" ~ unique(grep("Index", unit2, value = TRUE)))
                               ) %>%
                               group_by(across(c("model", "region", "indicator", "unit", "unit2", "flag"))) %>%
-                              mutate(delta_base_YEAR = paste0(round(100 * ((value / value[yrs == input$year[1]]) - 1), 2), "%")) %>%
-                              filter(yrs == input$year[2]) %>%
+                              mutate(delta_base_YEAR = paste0(round(100 * ((value / value[yrs == input$s_year[1]]) - 1), 2), "%")) %>%
+                              filter(yrs == input$s_year[2]) %>%
                               mutate(value = round(value, 2))
             )
         })

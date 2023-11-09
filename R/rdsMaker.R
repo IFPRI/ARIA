@@ -11,7 +11,7 @@
 #' @export
 rdsMaker <- function(folder, base_year = NULL) {
 
-    files <- grep(pattern = ".gdx",
+    files <- grep(pattern = "\\.gdx",
                   x = list.files(path = folder),
                   value = TRUE)
 
@@ -26,7 +26,7 @@ rdsMaker <- function(folder, base_year = NULL) {
     skip_msg <- FALSE
 
     for (file_vector in paste0(folder, "/", choice)) {
-        file_exists <- file.exists(gsub(pattern = ".gdx",
+        file_exists <- file.exists(gsub(pattern = "\\.gdx",
                                        replacement = ".rds",
                                        x = (file_vector)))
         if (file_exists) {
@@ -50,19 +50,21 @@ rdsMaker <- function(folder, base_year = NULL) {
                 skip_next_choice <- TRUE
                 cat("Attempting to convert to RDS file ......", "\n")
                 if (is.null(base_year)) getReport(gdx = file_vector,
-                                                  prep_flag = prep_flag)
+                                                  prep_flag = prep_flag,
+                                                  relative_calc = TRUE)
                 if (!is.null(base_year)) getReport(gdx = file_vector,
                                                    prep_flag = prep_flag,
-                                                   base_year = base_year)
+                                                   base_year = base_year,
+                                                   relative_calc = TRUE)
                 choice[choice == basename(file_vector)] <-
-                    gsub(pattern = ".gdx",
+                    gsub(pattern = "\\.gdx",
                          replacement = ".rds",
                          x = basename(file_vector))
                 user_choice <- 1
             }
 
             choice[choice == basename(file_vector)] <-
-                gsub(pattern = ".gdx",
+                gsub(pattern = "\\.gdx",
                      replacement = ".rds",
                      x = basename(file_vector))
 
