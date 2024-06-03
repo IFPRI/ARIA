@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this package, please cite it as below."
+authors:
+  - family-names: Mishra
+    given-names: Abhijeet
+    orcid: https://orcid.org/0000-0002-8287-9922
+title: "App for IMPACT (App foR ImpAct)"
+version: 2.5.0
